@@ -1,64 +1,54 @@
-const { Client, GatewayIntentBits } = require('discord.js')
-const express = require("express");
-const { google } = require("googleapis");
+/*
+    index.js
+    Starts the bot and handles commands.
 
-const auth = new google.auth.GoogleAuth({
-  keyFile: "credentials.json", // https://developers.google.com/workspace/guides/create-credentials
-  scopes: "https://www.googleapis.com/auth/spreadsheets",
-});
+    James Howarth
+    1/27/2023
 
-const client = new Client({ 
-    intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.MessageContent,
-        GatewayIntentBits.GuildMessages,
-    ]
-});
+*/
 
-client.on('ready', () => {
-    console.log(`Logged in as ${client.user.tag}!`);
-});
+const fs = require('node:fs');
+const path = require('node:path');
+const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
+const { token } = require('./config.json');
 
-client.on('messageCreate', msg => {
-    if (msg.content === '/duetomorrow') {
-        main(msg);
-    }
-    console.log(msg.content)
-});
+// Initialize client
+const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
-const main = async (msg) => {
-    // Create client instance for auth
-    const client = await auth.getClient();
+// Initialize collection for commands
+client.commands = new Collection();
 
-    // Instance of Google Sheets API
-    const googleSheets = google.sheets({ version: "v4", auth: client });
+// Define path and filter to read command files
+const commandsPath = path.join(__dirname, 'commands');
+const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
-    const spreadsheetId = "1qG28oJcWhqGYGNhCAML2xzKoSXxVjYURLtkGgCOGGRQ";
-
-    // Read rows from spreadsheet
-    const getRows = await googleSheets.spreadsheets.values.get({
-      auth,
-      spreadsheetId,
-      range: "Winter Semester 2023!A3:E80",
-    });
-
-    const rows = getRows.data.values;
-    let message = "Tomorrow's Due Dates:\n"
-    // Loop through rows and parse values
-    rows.forEach(row => {
-        if(row[4] == 1){
-            let className = row[0]
-            if(!className) {
-                let i = 0;
-                while(!className) {
-                    className = rows[rows.indexOf(row) - i][0]
-                    i++;
-                }
-            }
-            message += "**[" + className + "]**\n" + row[2] + "\n"
-        }
-    });
-    msg.reply(message);
+// Loop through command files and add to collection
+for (const file of commandFiles) {
+	const filePath = path.join(commandsPath, file);
+	const command = require(filePath);
+	client.commands.set(command.data.name, command);
 }
 
-client.login('token');
+// Event listener when client is ready
+client.once(Events.ClientReady, () => {
+	console.log('Ready!');
+});
+
+// Event listener for command execution
+client.on(Events.InteractionCreate, async interaction => {
+	if (!interaction.isChatInputCommand()) return;
+
+	const command = client.commands.get(interaction.commandName);
+
+	if (!command) return;
+
+	try {
+		await command.execute(interaction);
+	} catch (error) {
+		console.error(error);
+		await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+	}
+});
+
+// Log in to Discord
+client.login(token);
