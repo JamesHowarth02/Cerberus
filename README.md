@@ -47,6 +47,7 @@ Note: In order to access the specific spreadsheet you need to share the spreadsh
 **Starting the Bot:**
 1. Ensure you have NodeJS installed at the latest version: https://nodejs.org/
 2. Open the folder the index.js is located in.
-3. Open command prompt in this directory and run `node index.js`
-4. If the bot says "Ready!" you're all set to go!
+3. Open command prompt in this directory and run `npm install`
+4. Run `node index.js`
+5. If the bot says "Ready!" you're all set to go!
 
