@@ -1,6 +1,10 @@
 # Cerberus for Homework
 Track due dates according to an external spreadsheet.
 
+# TO-DO List:
+- Add a navigation menu to paginate between dates (https://discordjs.guide/interactions/buttons.html#building-and-sending-buttons).
+- Cache spreadsheet data to reduce API requests sent to Google Sheets.
+
 # Contributing to the Bot
 In this guide, you will learn how to set-up the bot in your own development environment to add your own commands.
 
