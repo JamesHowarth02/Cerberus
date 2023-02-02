@@ -89,7 +89,7 @@ client.once(Events.ClientReady, () => {
 // Minute, Hour, Day, Week, Month
 cron.schedule("0 20 * * *", async () => {
   await client.channels.fetch(csgeneral);
-  const embed = await createAssignmentEmbed("Today");
+  const embed = await createAssignmentEmbed("Tomorrow");
   const randomIndex = Math.floor(Math.random() * report_phrases.length);
 
   let phrase = report_phrases[randomIndex];
