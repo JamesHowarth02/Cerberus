@@ -14,20 +14,44 @@ const { token, version } = require("./config.json");
 const googleSheetsFetcher = require("./commands/helpers/sheets-helper.js");
 
 const phrases = [
-    "<assignmentsDue> assignments due today!",
+    "<assignmentsDueToday> assignments due today!",
+    "<assignmentsDueTomorrow> assignments due tomorrow!",
+    "<assignmentsDueYesterday> assignments were due yesterday!",
+    "for pull requests on my repo!",
+    "the world go by!",
+    "paint dry ;-;",
+    "grass grow... in slow motion!",
+    "for my next class..",
+    "<assignmentsDueToday> assignments due today that I'm not going to do."
 ];
 
 // Method to parse phrases so we can add due dates to them
 async function parsePhrase(phrase) {
-	let assignmentsDue = await googleSheetsFetcher.fetchToday();
-  let count = 0
-	for (const className in assignmentsDue) {
-    assignmentsDue[className].forEach((assignment) => {
-      count = count + 1;
-    });
+  let assignmentsDue;
+  let placeholder;
+  if(phrase.includes("<assignmentsDueToday>")) {
+    assignmentsDue = await googleSheetsFetcher.fetchToday();
+    placeholder = "<assignmentsDueToday>";
+  } else if(phrase.includes("<assignmentsDueTomorrow>")) {
+    assignmentsDue = await googleSheetsFetcher.fetchTomorrow();
+    placeholder = "<assignmentsDueTomorrow>";
+  } else if(phrase.includes("<assignmentsDueYesterday>")) {
+    assignmentsDue = await googleSheetsFetcher.fetchYesterday();
+    placeholder = "<assignmentsDueYesterday>";
+  } else {
+    return phrase;
   }
-	return phrase.replace(/<assignmentsDue>/g, count);
+  
+  let count = 0;
+  for (const className in assignmentsDue) {
+    count += assignmentsDue[className].length;
+  }
+  
+  return phrase.replace(placeholder, count.toString());
 }
+
+
+
 
 async function setRandomStatus() {
 	const randomIndex = Math.floor(Math.random() * phrases.length);
