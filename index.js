@@ -9,58 +9,51 @@
 
 const fs = require("node:fs");
 const path = require("node:path");
-const { Client, Collection, Events, GatewayIntentBits, ActivityType } = require("discord.js");
-const { token, version } = require("./config.json");
+const {
+  Client,
+  Collection,
+  Events,
+  GatewayIntentBits,
+  ActivityType,
+} = require("discord.js");
+const { token, version, csgeneral } = require("./config.json");
+const { status_phrases, report_phrases } = require("./phrases.json");
+const cron = require("node-cron");
 const googleSheetsFetcher = require("./commands/helpers/sheets-helper.js");
-
-const phrases = [
-    "<assignmentsDueToday> assignments due today!",
-    "<assignmentsDueTomorrow> assignments due tomorrow!",
-    "<assignmentsDueYesterday> assignments were due yesterday!",
-    "for pull requests on my repo!",
-    "the world go by!",
-    "paint dry ;-;",
-    "grass grow... in slow motion!",
-    "for my next class..",
-    "<assignmentsDueToday> assignments due today that I'm not going to do."
-];
+const createAssignmentEmbed = require("./commands/helpers/assignment-module.js");
 
 // Method to parse phrases so we can add due dates to them
 async function parsePhrase(phrase) {
   let assignmentsDue;
   let placeholder;
-  if(phrase.includes("<assignmentsDueToday>")) {
+  if (phrase.includes("<assignmentsDueToday>")) {
     assignmentsDue = await googleSheetsFetcher.fetchToday();
     placeholder = "<assignmentsDueToday>";
-  } else if(phrase.includes("<assignmentsDueTomorrow>")) {
+  } else if (phrase.includes("<assignmentsDueTomorrow>")) {
     assignmentsDue = await googleSheetsFetcher.fetchTomorrow();
     placeholder = "<assignmentsDueTomorrow>";
-  } else if(phrase.includes("<assignmentsDueYesterday>")) {
+  } else if (phrase.includes("<assignmentsDueYesterday>")) {
     assignmentsDue = await googleSheetsFetcher.fetchYesterday();
     placeholder = "<assignmentsDueYesterday>";
   } else {
     return phrase;
   }
-  
+
   let count = 0;
   for (const className in assignmentsDue) {
     count += assignmentsDue[className].length;
   }
-  
+
   return phrase.replace(placeholder, count.toString());
 }
 
-
-
-
 async function setRandomStatus() {
-	const randomIndex = Math.floor(Math.random() * phrases.length);
-	let phrase = await parsePhrase(phrases[randomIndex])
-	client.user.setPresence({
-		activities: [{ name: phrase, type: ActivityType.Watching }],
-		status: 'dnd',
-	});
-	console.log(phrase)
+  const randomIndex = Math.floor(Math.random() * status_phrases.length);
+  let phrase = await parsePhrase(status_phrases[randomIndex]);
+  client.user.setPresence({
+    activities: [{ name: phrase, type: ActivityType.Watching }],
+    status: "dnd",
+  });
 }
 
 // Initialize client
@@ -84,12 +77,23 @@ for (const file of commandFiles) {
 
 // Event listener when client is ready
 client.once(Events.ClientReady, () => {
+  console.clear();
   console.log(`Cerberus v${version} is now ready!`);
-  setRandomStatus() // so it sets an initial status
+  setRandomStatus(); // so it sets an initial status
 
   setInterval(() => {
-	setRandomStatus()
+    setRandomStatus();
   }, 300000); // print every 5 minutes (300000 milliseconds)
+});
+
+// Minute, Hour, Day, Week, Month
+cron.schedule("0 20 * * *", async () => {
+  await client.channels.fetch(csgeneral);
+  const embed = await createAssignmentEmbed("Today");
+  const randomIndex = Math.floor(Math.random() * report_phrases.length);
+
+  let phrase = report_phrases[randomIndex];
+  client.channels.cache.get(csgeneral).send({content: "**" + phrase + "**", embeds: [embed]})
 });
 
 // Event listener for command execution

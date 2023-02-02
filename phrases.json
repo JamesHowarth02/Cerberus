@@ -1,0 +1,23 @@
+{
+	"status_phrases": [
+		"<assignmentsDueToday> assignments due today!",
+		"<assignmentsDueTomorrow> assignments due tomorrow!",
+		"<assignmentsDueYesterday> assignments were due yesterday!",
+		"for pull requests on my repo!",
+		"the world go by!",
+		"paint dry ;-;",
+		"grass grow... in slow motion!",
+		"for my next class..",
+		"<assignmentsDueToday> assignments due today that I'm not going to do."
+	],
+	"report_phrases": [
+		":wolf: Good evening, here's tomorrow tasks!",
+		":alarm_clock: Time to get productive, here's what's due tomorrow!",
+		":books: Homework alert! Here's the rundown for tomorrow.",
+		":pencil: Brush up on your penmanship, tomorrow's assignments are incoming!",
+		":rocket: Launch into productivity with these tomorrow's tasks!",
+		":nerd_face: Get ready to tackle the to-do list, here's what's due tomorrow.",
+		":memo: Write this down, here's what you need to do tomorrow.",
+		":bookmark_tabs: Bookmark this message for tomorrow's homework."
+	]
+}
