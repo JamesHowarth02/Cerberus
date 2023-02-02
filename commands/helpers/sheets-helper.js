@@ -65,7 +65,7 @@ async function fetchByDaysLeft(daysLeft) {
                     className = rows[rows.indexOf(row) - i][0]
                     i++;
                 }
-                className = "[" + className + "] " + rows[rows.indexOf(row) - (i-1)][1]
+                className = `[${className}] ${rows[rows.indexOf(row) - (i-1)][1]}`
             }
             // if the class name is already present in the parsedArray, add the class time to the same key
             if(parsedArray[className]){

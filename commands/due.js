@@ -53,8 +53,9 @@ module.exports = {
     // iterate through all the assignments
     let content = "";
     for (const className in assignmentArray) {
+      content = "" // wipe it for each class so they don't stack
       assignmentArray[className].forEach((assignment) => {
-        content += "- " + assignment + "\n";
+        content = content + `- ${assignment}\n`
       });
       embed.addFields({name: className, value: content, inline: true});
     }
