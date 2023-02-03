@@ -27,7 +27,9 @@ Note: To use the bot, you will need to have the "Manage Server" permission on th
 {
 	"guildId": "", // The guildId you're testing or running the bot in, i.e your server.
 	"clientId": "", // The clientId of the Discord Bot, found on the Developer Portal.
-	"token": "" // The token for your bot, keep this secret! This is also obtained on the Developer Portal.
+	"token": "", // The token for your bot, keep this secret! This is also obtained on the Developer Portal.
+	"version": "", // The current version to report in the log for Cerberus.
+	"csgeneral": "" // The channel ID for the daily report to submit to.
 }
 ```
 3. Save this file and keep it in the same directory as the index.js file.
