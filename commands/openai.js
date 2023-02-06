@@ -7,7 +7,7 @@
 
 */
 
-const { SlashCommandBuilder } = require("discord.js");
+const { SlashCommandBuilder, codeBlock } = require("discord.js");
 const { Configuration, OpenAIApi } = require("openai");
 const { openAPIKey } = require("../config.json");
 const configuration = new Configuration({
@@ -58,41 +58,61 @@ module.exports = {
     const model = interaction.options.getString("model");
     const query = interaction.options.getString("prompt");
 
-    const response = await openai.createCompletion({
-      model: model,
-      prompt: query,
-      temperature: 0,
-      max_tokens: 64,
-      top_p: 1.0,
-      frequency_penalty: 0.0,
-      presence_penalty: 0.0,
-      stop: ['"""'],
+    var response = await openai.createModeration({
+      input: query,
     });
+    if (response && response.data.results && response.data.results[0].flagged == false) {
+      response = await openai.createCompletion({
+        model: model,
+        prompt: query,
+        temperature: 0,
+        max_tokens: 64,
+        top_p: 1.0,
+        frequency_penalty: 0.0,
+        presence_penalty: 0.0,
+        stop: ['"""'],
+      });
 
-    if (
-      response &&
-      response.data &&
-      response.data.choices &&
-      response.data.choices.length > 0
-    ) {
+      if (
+        response &&
+        response.data &&
+        response.data.choices &&
+        response.data.choices.length > 0
+      ) {
+        interaction.followUp({
+          content:
+            ":warning: **The following content was generated via OpenAI.**\n> **Model:** " +
+            model +
+            "\n> **Prompt:** " +
+            query +
+            "\n> **Response:** " +
+            response.data.choices[0].text,
+        });
+      } else {
+        interaction.followUp({
+          content:
+            ":warning: **The following content was generated via OpenAI.**\n> **Model:** " +
+            model +
+            "\n> **Prompt:** " +
+            query +
+            "\n> **Response: <OpenAI failed to respond to the given prompt.>",
+        });
+      }
+    }else{
+      const categories = response.data.results[0].categories;
+      const category_scores = response.data.results[0].category_scores;
+      const flags = codeBlock('json', JSON.stringify(categories, null, 2) + ",\n" + JSON.stringify(category_scores, null, 2));
       interaction.followUp({
         content:
-          ":warning: **The following content was generated via OpenAI.**\n> **Model:** " +
+          ":warning: **Your query has been flagged by OpenAI's moderation for violating our use-case policies.\nGenerating offensive content is not tolerated and goes against our commitment to promoting responsible and ethical use of our technology.**\n> **Model:** " +
           model +
           "\n> **Prompt:** " +
           query +
-          "\n> **Response:** " +
-          response.data.choices[0].text,
+          "\n> **Flags:**\n" + flags
       });
-    } else {
-      interaction.followUp({
-        content:
-          ":warning: **The following content was generated via OpenAI.**\n> **Model:** " +
-          model +
-          "\n> **Prompt:** " +
-          query +
-          "\n> **Response: <OpenAI failed to respond to the given prompt.>",
-      });
+      interaction.member.timeout(1 * 60 * 1000, 'Attempted to generate inappropriate content: "' + query + "'")
+      .then(interaction.user.username + " was temporarily muted for attempting to generated flagged content.")
+      .catch(interaction.user.username + " attempted to generated flagged content but was unable to be temporarily muted.");
     }
   },
 };

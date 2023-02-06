@@ -29,7 +29,8 @@ Note: To use the bot, you will need to have the "Manage Server" permission on th
 	"clientId": "", // The clientId of the Discord Bot, found on the Developer Portal.
 	"token": "", // The token for your bot, keep this secret! This is also obtained on the Developer Portal.
 	"version": "", // The current version to report in the log for Cerberus.
-	"csgeneral": "" // The channel ID for the daily report to submit to.
+	"csgeneral": "", // The channel ID for the daily report to submit to.
+	"openAPIKey": "", // The OpenAI API key.
 }
 ```
 3. Save this file and keep it in the same directory as the index.js file.
