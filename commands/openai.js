@@ -111,8 +111,8 @@ module.exports = {
           "\n> **Flags:**\n" + flags
       });
       interaction.member.timeout(1 * 60 * 1000, 'Attempted to generate inappropriate content: "' + query + "'")
-      .then(interaction.user.username + " was temporarily muted for attempting to generated flagged content.")
-      .catch(interaction.user.username + " attempted to generated flagged content but was unable to be temporarily muted.");
+      .then(() => console.log(interaction.user.username + " was temporarily muted for attempting to generated flagged content.")
+      .catch(() => console.log(interaction.user.username + " attempted to generated flagged content but was unable to be temporarily muted.")));
     }
   },
 };
